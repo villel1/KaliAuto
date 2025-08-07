@@ -1,0 +1,12 @@
+{
+  "run_InitialRecon": true,
+  "run_DNSrecon": true,
+  "run_HTTPrecon": true,
+  "run_SSHrecon": true,
+  "run_SMBrecon": true,
+  "run_SMTPrecon": true,
+  "run_SNMPrecon": true,
+  "run_FTPrecon": true,
+  "run_Vulnrecon": true,
+  "run_RDPrecon": true
+}
