@@ -1,4 +1,4 @@
-# PWSHRECON
+# KaliAuto
 
 POWERRECON is a modular, multi-threaded network reconnaissance framework written in PowerShell and intended to run on Kali Linux (or other Linux distributions with PowerShell Core). It is designed for automated service enumeration and result parsing.
 
