@@ -2,7 +2,7 @@
 function Write-Log {
     param(
         [string]$Message,
-        [ValidateSet("INFO", "WARN", "ERROR", "DEBUG")]
+        [ValidateSet("INFO", "WARNING", "ERROR", "DEBUG")]
         [string]$Level = "INFO",
         [string]$LogFile = "$PSScriptRoot/../output/framework.log"
     )
