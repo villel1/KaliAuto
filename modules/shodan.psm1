@@ -6,11 +6,6 @@ function Invoke-ShodanScan {
         [string[]]$targets
     )
 
-    $ParsedDir = Join-Path $OutputDir "parsed"
-    if (-not (Test-Path $ParsedDir)) {
-        New-Item -ItemType Directory -Path $ParsedDir | Out-Null
-    }
-
     if (-not $targets) {
         if ($InputType -eq 'domain' -and (Test-Path $InputFile)) {
             $targets = Get-Content $InputFile | Where-Object { $_.Trim().Length -gt 0 }

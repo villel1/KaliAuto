@@ -1,7 +1,6 @@
 function Invoke-theHarvesterScan {
     param(
         [string]$OutputDir,
-        [string]$ParsedDir,
         [string]$InputType,
         [string]$InputFile,
         [string[]]$targets,
@@ -29,7 +28,7 @@ function Invoke-theHarvesterScan {
 
     foreach ($target in $targets) {
         $target = $target.Trim()
-        $OutFile_base = Join-Path $ParsedDir "theHarvester_$target"
+        $OutFile_base = Join-Path $OutputDir "theHarvester_$target"
 
         Write-Log -Message "Running theHarvester for $target using source '$source'" -Level "INFO"
         try {
@@ -40,4 +39,60 @@ function Invoke-theHarvesterScan {
             Write-Log -Message "theHarvester failed for $target — $($_.Exception.Message)" -Level "ERROR"
         }
     }
+}
+function Invoke-theHarvesterParser {
+    param (
+        [string]$ParsedDir,
+        [string]$OutputDir
+    )
+
+    # Create output directory if needed
+    if (-not (Test-Path $OutputDir)) {
+        New-Item -ItemType Directory -Path $OutputDir | Out-Null
+    }
+
+    $xmlFiles = Get-ChildItem -Path $OutputDir -Filter "theHarvester_*.xml"
+    $parsedResults = @()
+
+    foreach ($file in $xmlFiles) {
+        try {
+            [xml]$xmlData = Get-Content $file.FullName
+            $domain = ($file.BaseName -replace '^theHarvester_', '')
+
+            foreach ($email in $xmlData.theHarvester.emails.email) {
+                $parsedResults += [PSCustomObject]@{
+                    Domain     = $domain
+                    Type       = "Email"
+                    Value      = $email
+                    SourceFile = $file.Name
+                }
+            }
+
+            foreach ($hostNode in $xmlData.theHarvester.hosts.host) {
+                $parsedResults += [PSCustomObject]@{
+                    Domain     = $domain
+                    Type       = "Host"
+                    Value      = $hostNode
+                    SourceFile = $file.Name
+                }
+            }
+
+            foreach ($ip in $xmlData.theHarvester.ips.ip) {
+                $parsedResults += [PSCustomObject]@{
+                    Domain     = $domain
+                    Type       = "IP"
+                    Value      = $ip
+                    SourceFile = $file.Name
+                }
+            }
+
+            Write-Log -Message "Parsed theHarvester XML: $($file.Name)" -Level "INFO"
+        } catch {
+            Write-Log -Message "Failed to parse $($file.Name): $($_.Exception.Message)" -Level "ERROR"
+        }
+    }
+
+    $csvPath = Join-Path $ParsedDir "theHarvester_summary.csv"
+    $parsedResults | Export-Csv -Path $csvPath -NoTypeInformation -Force
+    Write-Log -Message "Saved parsed theHarvester results to $csvPath" -Level "INFO"
 }
