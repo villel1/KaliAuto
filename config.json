@@ -10,5 +10,7 @@
   "run_Vulnrecon": true,
   "run_RDPrecon": true,
   "run_Metasploit": true,
-  "run_ReconNG":true
+  "run_ReconNG": true,
+  "run_theHarvester": true,
+  "run_Shodan": true 
 }

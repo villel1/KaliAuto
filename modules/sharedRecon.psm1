@@ -148,6 +148,14 @@ function Invoke-Metasploit {
     Invoke-MetasploitScan -Ports @(445) -Module "auxiliary/scanner/smb/smb_enumshares" -ScanName "smb_enumshares" -OutputDir $OutputDir
     Invoke-MetasploitScan -Ports @(445) -Module "auxiliary/scanner/smb/smb_enumusers" -ScanName "smb_enumusers" -OutputDir $OutputDir
     Invoke-MetasploitScan -Ports @(445) -Module "auxiliary/scanner/smb/smb_version" -ScanName "smb_version" -OutputDir $OutputDir
+
+
+    # Parsers
+    Invoke-HTTPVersionParse -OutputDir $OutputDir -ParsedDir $ParsedDir
+    Invoke-HTTPEnumParse -OutputDir $OutputDir -ParsedDir $ParsedDir
+    Invoke-SMTPEnumParse -OutputDir $OutputDir -ParsedDir $ParsedDir
+    Invoke-SMTPVersionParse -OutputDir $OutputDir -ParsedDir $ParsedDir
+    Invoke-SSHEnumParse -OutputDir $OutputDir -ParsedDir $ParsedDir
 }
 function Invoke-ReconNG {
     param (
@@ -169,7 +177,7 @@ function Invoke-theHarvester {
         [string]$OutputDir,
         [string]$ParsedDir
     )
-    Invoke-theHarvesterScan -OutputDir $OutputDir -ParsedDir $ParsedDir -InputType "domain" -InputFile (Join-Path $OutputDir "domains.txt") -targets $targets -source "all" -limit 100
+    Invoke-theHarvesterScan -OutputDir $OutputDir -ParsedDir $ParsedDir -InputType $InputType -targets $targets -source "all" -limit 100
 }
 
 function Invoke-Shodan {
@@ -178,5 +186,5 @@ function Invoke-Shodan {
         [string]$ParsedDir
     )
 
-    Invoke-ShodanScan -InputFile (Join-Path $OutputDir "ip_ports.list") -OutputDir $OutputDir -ParsedDir $ParsedDir -targets $targets -ApiKey $ApiKey
+    Invoke-ShodanScan -OutputDir $OutputDir -ParsedDir $ParsedDir -targets $targets -ApiKey $ApiKey
 }

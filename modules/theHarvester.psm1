@@ -15,11 +15,10 @@ function Invoke-theHarvesterScan {
                 $targets = Get-Content $InputFile | Where-Object { $_.Trim().Length -gt 0 }
                 Write-Log -Message "Loaded domain targets from: $InputFile" -Level "INFO"
             } else {
-                Write-Log -Message "Domain input file not found: $InputFile" -Level "WARN"
+                Write-Log -Message "Domain input file not found: $InputFile" -Level "WARNING"
             }
         } else {
-            Write-Log -Message "Unsupported input type for theHarvester: $InputType" -Level "ERROR"
-            return @()
+            $targets = Get-Content (Join-Path $OutputDir 'reverse_dns.txt')
         }
     }
 
@@ -30,12 +29,11 @@ function Invoke-theHarvesterScan {
 
     foreach ($target in $targets) {
         $target = $target.Trim()
-        $OutFile_html = Join-Path $OutputDir "theHarvester_$target.html"
-        $OutFile_json = Join-Path $ParsedDir "theHarvester_$target.json"
+        $OutFile_base = Join-Path $ParsedDir "theHarvester_$target"
 
         Write-Log -Message "Running theHarvester for $target using source '$source'" -Level "INFO"
         try {
-            $Command = "theHarvester -d $target -b $source -l $limit -f $OutFile_html -s -n -j $OutFile_json"
+            $Command = "theHarvester -d $target -b $source -l $limit -f $OutFile_base -s -n"
             Invoke-Expression "$Command"
             Write-Log -Message "theHarvester completed for $target — results saved to HTML and JSON" -Level "INFO"
         } catch {
