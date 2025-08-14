@@ -8,5 +8,7 @@
   "run_SNMPrecon": true,
   "run_FTPrecon": true,
   "run_Vulnrecon": true,
-  "run_RDPrecon": true
+  "run_RDPrecon": true,
+  "run_Metasploit": true,
+  "run_ReconNG":true
 }

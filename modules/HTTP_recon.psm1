@@ -726,3 +726,92 @@ function Invoke-SSlyzeParser {
     }
     Write-Log -Message "Invoke-SSlyzeParser routine completed." -Level "INFO"
 }
+
+function Invoke-HttpxScan {
+    param (
+        [string]$OutputDir,
+        [string[]]$targets
+    )
+
+    # Define allowed web service ports
+    $WebPorts = @(80, 443, 8080, 8443, 8000)
+
+    if (-not $targets) {
+        $targets = Get-Content (Join-Path $OutputDir "ip_ports.list")
+    }
+
+    foreach ($target in $targets) {
+        $parts = $target.Split(":")
+        $ip    = $parts[0]
+        $port  = [int]$parts[1]
+
+        # Filter: only scan web-related ports
+        if (-not ($WebPorts -contains $port)) {
+            Write-Log -Message "Skipping ${ip}:$port — not a recognized web service port." -Level "WARNING"
+            continue
+        }
+
+        # Determine protocol
+        $protocol = switch ($port) {
+            443     { 'https' }
+            8443    { 'https' }
+            default { 'http' }
+        }
+
+        $url     = "${protocol}://${ip}:${port}"
+        $outfile = Join-Path $OutputDir "httpx_${protocol}_${ip}_${port}.json"
+
+        Write-Log -Message "Running httpx on $url." -Level "INFO"
+
+        try {
+            $command = "httpx -u $url -title -web-server -status-code -json -silent"
+            Invoke-Expression $command | Out-File $outfile -Encoding utf8
+            Write-Log -Message "httpx scan successful for $url — output saved to $outfile." -Level "INFO"
+        } catch {
+            Write-Log -Message "httpx scan failed for $url — $($_.Exception.Message)" -Level "ERROR"
+        }
+    }
+
+    Write-Log -Message "Completed Invoke-HttpxScan execution." -Level "INFO"
+}
+
+function Invoke-HttpxParser {
+    param (
+        [string]$OutputDir,
+        [string]$ParsedDir
+    )
+
+    if (-not (Test-Path $ParsedDir)) {
+        New-Item -ItemType Directory -Path $ParsedDir | Out-Null
+    }
+
+    $jsonFiles = Get-ChildItem -Path $OutputDir -Filter "httpx_*.json"
+    $parsedResults = @()
+
+    foreach ($file in $jsonFiles) {
+        try {
+            $jsonContent = Get-Content $file.FullName -Raw | ConvertFrom-Json
+
+            $parsedResults += [PSCustomObject]@{
+                URL           = $jsonContent.url
+                StatusCode    = $jsonContent.status_code
+                WebServer     = $jsonContent.webserver
+                TechStack     = ($jsonContent.tech -join ", ")
+                Title         = $jsonContent.title
+                Location      = $jsonContent.location
+                IP            = $jsonContent.host
+                Port          = $jsonContent.port
+                TimeTaken     = $jsonContent.time
+                Failed        = $jsonContent.failed
+            }
+
+            Write-Log -Message "Parsed httpx result from $($file.Name)" -Level "INFO"
+        } catch {
+            Write-Log -Message "Failed to parse $($file.Name): $($_.Exception.Message)" -Level "ERROR"
+        }
+    }
+
+    $csvPath = Join-Path $ParsedDir "httpx_summary.csv"
+    $parsedResults | Export-Csv -Path $csvPath -NoTypeInformation -Force
+    Write-Log -Message "Saved parsed httpx results to $csvPath" -Level "INFO"
+}
