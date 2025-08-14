@@ -186,5 +186,5 @@ function Invoke-Shodan {
         [string]$ParsedDir
     )
 
-    Invoke-ShodanScan -OutputDir $OutputDir -ParsedDir $ParsedDir -targets $targets -ApiKey $ApiKey
+    Invoke-ShodanScan -OutputDir $OutputDir
 }

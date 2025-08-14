@@ -12,5 +12,5 @@
   "run_Metasploit": true,
   "run_ReconNG": true,
   "run_theHarvester": true,
-  "run_Shodan": true 
+  "run_Shodan": true
 }
