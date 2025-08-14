@@ -1,6 +1,6 @@
-# PWSHRECON
+# KaliAuto
 
-POWERRECON is a modular, multi-threaded network reconnaissance framework written in PowerShell and intended to run on Kali Linux (or other Linux distributions with PowerShell Core). It is designed for automated service enumeration and result parsing.
+KaliAuto is a modular, multi-threaded network reconnaissance framework written in PowerShell and intended to run on Kali Linux (or other Linux distributions with PowerShell Core). It is designed for automated service enumeration and result parsing.
 
 The framework performs initial port and service scans using tools like Nmap, then dynamically launches protocol-specific enumeration modules (e.g., SSLyze for TLS, CME for SMB/SSH, Nikto for HTTP) based on detected services. Parsed outputs from scanners are exported to structured formats (CSV), enabling fast analysis and review. Built with scalability and auditability in mind, POWERRECON is ideal for internal assessments, or learning-driven recon projects.
 
